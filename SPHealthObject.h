@@ -1,50 +1,35 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
 #pragma once
 
 #include "CoreMinimal.h"
-#include "UObject/NoExportTypes.h"
-#include "SPHealthObject.generated.h"
+#include "FHealthVariables.generated.h"
 
-/**
- * 
- */
-UCLASS()
-class SP_API USPHealthObject : public UObject
+
+USTRUCT(BlueprintType)
+struct FHealthVariables
 {
-	GENERATED_BODY()
+    GENERATED_BODY()
 
+    UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Health")
+    FText HealthVariableName;
 
-public:
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Health")
+    class UTexture2D* HVariableIcon;
 
-	USPHealthObject();
+    UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Health")
+    float MaxHealth;
 
-	USTRUCT(BlueprintType)
-		struct FSPHealthVariables {
-		GENERATED_BODY()
+    UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Health")
+    float CurHealth;
 
-		UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Health")
-		FText HObjectName;
+    UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Health")
+    float DamHealth;
 
-		// Max Health for this body part
-		UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Health")
-		float MaxHealth;
+    UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Health")
+    float RecHealth;
 
-		// Current Health for this body part
-		UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Health")
-		float CurHealth;
+    UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Health")
+    float PoisHealth;
 
-		// Current Health that is Damaged
-		UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Health")
-		float DamHealth;
-
-		// Current Health in Recovery Phase
-		UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Health")
-		float RecHealth;
-
-		// Current Health in Poisoned Phase
-		UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Health")
-		float PoisHealth;
-	};
-	
+	FHealthVariables();
+	~FHealthVariables();
 };
