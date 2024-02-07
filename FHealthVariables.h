@@ -1,8 +1,7 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
 #pragma once
 
 #include "CoreMinimal.h"
+#include "ESPHealthVarNames.h"
 #include "FHealthVariables.generated.h"
 
 
@@ -12,7 +11,7 @@ struct FHealthVariables
     GENERATED_BODY()
 
     UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Health")
-    FText HealthVariableName;
+    ESPHealthVarNames HealthVariableName;
 
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Health")
     class UTexture2D* HVariableIcon;
