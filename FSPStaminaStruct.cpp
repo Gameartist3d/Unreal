@@ -1,0 +1,2 @@
+#include "FSPStaminaStruct.h"
+
