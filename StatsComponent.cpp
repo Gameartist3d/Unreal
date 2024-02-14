@@ -1,3 +1,6 @@
+// Fill out your copyright notice in the Description page of Project Settings.
+
+
 #include "StatsComponent.h"
 
 // Sets default values for this component's properties
@@ -51,6 +54,42 @@ FSkill* UStatsComponent::FindSkillByName(ESPSkillNames Skillname)
 	return nullptr;
 }
 
+int32 UStatsComponent::GetAttributelvl(EAttributeName Attributename)
+{
+	for (FSPAttribute& Attribute : Attributes)
+	{
+		if (Attribute.AttributeName == Attributename)
+		{
+			return Attribute.AttributeLvl;
+		}
+	}
+	return 0;
+}
+
+int32 UStatsComponent::GetDisciplinelvl(ESPDisciplineNames Disciplinename)
+{
+	for (FDiscipline& discipline : Disciplines)
+	{
+		if (discipline.DisciplineName == Disciplinename)
+		{
+			return discipline.DisciplineLvl;
+		}
+	}
+	return 0;
+}
+
+int32 UStatsComponent::GetSkilllvl(ESPSkillNames Skillname)
+{
+	for (FSkill& Skill : Skills)
+	{
+		if (Skill.SkillName == Skillname)
+		{
+			return Skill.SkillLvl;
+		}
+	}
+	return 0;
+}
+
 void UStatsComponent::DamageToBodyHealth(FSPDamageType damage, ESPHealthVarNames bodypart)
 {
 	for (FHealthVariables& body : BodyHealth)
@@ -96,7 +135,9 @@ void UStatsComponent::CheckAttributelvlUp(FSPAttribute& attribute)
 	if (attribute.AttributeExp >= ExperienceToLvl)
 	{
 		attribute.AttributeLvl++;
+		PlayuurLvlExp += 50 * attribute.AttributeLvl;
 		attribute.AttributeExp = 0.0f;
+		OnAttributeUpdated.Broadcast(attribute.AttributeName);
 	}
 }
 
@@ -116,7 +157,9 @@ void UStatsComponent::CheckDisciplinelvlUp(FDiscipline& discipline)
 	if (discipline.DisciplineExp >= ExperienceToLvl)
 	{
 		discipline.DisciplineLvl++;
+		AddAttributeExp(discipline.ParentAttribute, 25.0f * discipline.DisciplineLvl);
 		discipline.DisciplineExp = 0.0f;
+		OnDisciplineUpdated.Broadcast(discipline.DisciplineName);
 	}
 }
 
@@ -132,11 +175,14 @@ void UStatsComponent::AddSkillExp(ESPSkillNames Skillname, float ExptoAdd)
 
 void UStatsComponent::CheckSkilllvlUp(FSkill& Skill)
 {
-	const float ExperienceToLvl = 100.0f * Skill.SkillLvl;
+	const float ExperienceToLvl = 20.0f * Skill.SkillLvl;
 	if (Skill.SkillExp >= ExperienceToLvl)
 	{
 		Skill.SkillLvl++;
+		AddDisciplineExp(Skill.ParentDiscipline, 15.0f * Skill.SkillLvl);
+		AddDisciplineExp(Skill.MinorDiscipline, 5.0f * Skill.SkillLvl);
 		Skill.SkillExp = 0.0f;
+		OnSkillUpdated.Broadcast(Skill.SkillName);
 	}
 
 }
@@ -150,3 +196,5 @@ void UStatsComponent::BeginPlay()
 	// ...
 	
 }
+
+
