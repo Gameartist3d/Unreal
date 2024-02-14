@@ -19,6 +19,12 @@ DEFINE_LOG_CATEGORY(LogTemplateCharacter);
 
 ASPCharacter::ASPCharacter()
 {
+	PrimaryActorTick.bCanEverTick = true;
+	// Initialize variables
+	VaultStartHeight = 0.0f;
+	FallStartHeight = 0.0f;
+	bIsFalling = false;
+
 	// Set size for collision capsule
 	GetCapsuleComponent()->InitCapsuleSize(42.f, 96.0f);
 		
@@ -74,6 +80,31 @@ void ASPCharacter::BeginPlay()
 			Subsystem->AddMappingContext(DefaultMappingContext, 0);
 		}
 	}
+	PreviousZloc = GetActorLocation().Z;
+}
+
+void ASPCharacter::Tick(float DeltaTime)
+{
+	Super::Tick(DeltaTime);
+	
+	float CurrentVerticalVelocity = GetCharacterMovement()->Velocity.Z;
+
+	if (PreviousVerticalVelocity > 0 && CurrentVerticalVelocity <= 0)
+	{
+		if (!bReachedJumpPeak)
+		{
+			bReachedJumpPeak = true;
+			FallStartHeight = GetActorLocation().Z;
+			ExponVaultHeight();
+		}
+
+	}
+	else if (CurrentVerticalVelocity > 0)
+	{
+		bReachedJumpPeak = false;
+	}
+
+	PreviousVerticalVelocity = CurrentVerticalVelocity;
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -142,4 +173,40 @@ void ASPCharacter::Look(const FInputActionValue& Value)
 		AddControllerYawInput(LookAxisVector.X);
 		AddControllerPitchInput(LookAxisVector.Y);
 	}
+}
+
+void ASPCharacter::Jump()
+{
+	if (CanJump())
+	{
+		VaultStartHeight = GetActorLocation().Z;
+	}
+
+	Super::Jump();
+}
+
+void ASPCharacter::Landed(const FHitResult& Hit)
+{
+	Super::Landed(Hit);
+
+	ExponFallHeight();
+}
+
+void ASPCharacter::ExponVaultHeight()
+{
+	float VaultHeight = GetActorLocation().Z - VaultStartHeight;
+
+	float ExperiencePoints = FMath::RoundToFloat(VaultHeight / 100);
+
+	PlayuurStatsComponent->AddSkillExp(ESPSkillNames::Vaulting, ExperiencePoints);
+
+}
+
+void ASPCharacter::ExponFallHeight()
+{
+	float FallHeight = FallStartHeight - GetActorLocation().Z;
+
+	float ExperiencePoints = FMath::RoundToFloat(FallHeight/100);
+
+	PlayuurStatsComponent->AddSkillExp(ESPSkillNames::Vaulting, ExperiencePoints);
 }
