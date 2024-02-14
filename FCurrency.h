@@ -1,3 +1,5 @@
+// 3DNomad LLC
+
 #pragma once
 
 #include "CoreMinimal.h"
@@ -20,6 +22,7 @@ public:
 	class UTexture2D* CurrencyIcon;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Currency")
-	float TotalInWallet = 0.0f;
+	float TotalInWallet;
 
+	FCurrency();
 };
