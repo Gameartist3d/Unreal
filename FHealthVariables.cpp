@@ -1,8 +1,15 @@
+//3DNomad LLC
+
+
 #include "FHealthVariables.h"
 
 
 FHealthVariables::FHealthVariables()
 {
+	HealthVariableName = ESPHealthVarNames::AssCheek;
+	isLeftAppendage = false;
+	isRightAppendage = false;
+	HVariableIcon = nullptr;
 	MaxHealth = 100.0f;
 	CurHealth = 100.0f;
 	DamHealth = 0.0f;
