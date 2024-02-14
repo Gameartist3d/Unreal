@@ -64,6 +64,21 @@ public:
 
 protected:
 
+	//Bool To Track when the Playuur has started to fall 
+	bool bIsFalling;
+
+	//variable to store vault start height
+	float VaultStartHeight;
+
+	//variable to store fall start height
+	float FallStartHeight;
+
+	//function to calculate and grant exp based on vault height
+	void ExponVaultHeight();
+
+	//function to calculate and grant exp based on fall height
+	void ExponFallHeight();
+
 	/** Called for movement input */
 	void Move(const FInputActionValue& Value);
 
@@ -77,10 +92,26 @@ protected:
 	
 	// To add mapping context
 	virtual void BeginPlay();
+	virtual void Tick(float DeltaTime) override;
+
+	//override the landing event
+	virtual void Landed(const FHitResult& Hit) override;
 
 public:
 	/** Returns CameraBoom subobject **/
 	FORCEINLINE class USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
 	/** Returns FollowCamera subobject **/
 	FORCEINLINE class UCameraComponent* GetFollowCamera() const { return FollowCamera; }
+
+	virtual void Jump() override;
+
+private:
+	// Variable to store the Z location from the last frame
+	float PreviousZloc;
+
+	//Variable to check the playuur's velocity
+	float PreviousVerticalVelocity = 0.0f;
+
+	//Bool to check for jump peak
+	bool bReachedJumpPeak = false;
 };
