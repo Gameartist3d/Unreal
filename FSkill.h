@@ -1,7 +1,10 @@
+// 3DNomad LLC
+
 #pragma once
 
 #include "CoreMinimal.h"
 #include "ESPSkillNames.h"
+#include "ESPDisciplineNames.h"
 #include "FSkill.generated.h"
 
 //Struct for Skill Variables
@@ -26,5 +29,9 @@ public:
 	float SkillExp;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Skills")
-	TArray<ESPDisciplineNames> ParentDisciplines;
+	ESPDisciplineNames ParentDiscipline;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Skills")
+	ESPDisciplineNames MinorDiscipline;
+
 };
