@@ -122,6 +122,11 @@ void ASPCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 		// Moving
 		EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &ASPCharacter::Move);
 
+		//Sprinting
+		EnhancedInputComponent->BindAction(SprintAction, ETriggerEvent::Started, this, &ASPCharacter::Sprint);
+		EnhancedInputComponent->BindAction(SprintAction, ETriggerEvent::Ongoing, this, &ASPCharacter::DuringSprint);
+		EnhancedInputComponent->BindAction(SprintAction, ETriggerEvent::Completed, this, &ASPCharacter::StopSprinting);
+
 		// Looking
 		EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &ASPCharacter::Look);
 	}
@@ -159,6 +164,34 @@ void ASPCharacter::Move(const FInputActionValue& Value)
 		// add movement 
 		AddMovementInput(ForwardDirection, MovementVector.Y);
 		AddMovementInput(RightDirection, MovementVector.X);
+	}
+}
+
+void ASPCharacter::Sprint(const FInputActionValue& Value)
+{
+	if (GetCharacterMovement())
+	{
+		if (OriginalWalkSpeed == 0.f)
+		{
+			OriginalWalkSpeed = GetCharacterMovement()->MaxWalkSpeed;
+		}
+		GetCharacterMovement()->MaxWalkSpeed = OriginalWalkSpeed + (14.4f * PlayuurStatsComponent->GetSkilllvl(ESPSkillNames::Sprinting));
+		SprintTimeStart = GetWorld()->GetTimeSeconds();
+		
+	}
+}
+
+void ASPCharacter::StopSprinting(const FInputActionValue& Value)
+{
+	float newsprinttime = GetWorld()->GetTimeSeconds();
+	if (GetCharacterMovement())
+	{
+		//reset maxwalkspeed to original speed
+		GetCharacterMovement()->MaxWalkSpeed = OriginalWalkSpeed;
+		//reset OriginalWalkspeed
+		OriginalWalkSpeed = 0.f;
+		PlayuurStatsComponent->AddSkillExp(ESPSkillNames::Sprinting, 0.5f * (newsprinttime - SprintTimeStart));
+
 	}
 }
 
