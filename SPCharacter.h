@@ -42,6 +42,9 @@ class ASPCharacter : public ACharacter
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	UInputAction* MoveAction;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	UInputAction* SprintAction;
+
 	/** Look Input Action */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	UInputAction* LookAction;
@@ -73,6 +76,12 @@ protected:
 	//variable to store fall start height
 	float FallStartHeight;
 
+	//OriginalMaxWalkSpeed variable to preserve original walkspeed during calculations
+	float OriginalWalkSpeed;
+
+	//Time handle for tracking sprint time
+	float SprintTimeStart = 0.0f;
+
 	//function to calculate and grant exp based on vault height
 	void ExponVaultHeight();
 
@@ -81,6 +90,10 @@ protected:
 
 	/** Called for movement input */
 	void Move(const FInputActionValue& Value);
+
+	void Sprint(const FInputActionValue& Value);
+
+	void StopSprinting(const FInputActionValue& Value);
 
 	/** Called for looking input */
 	void Look(const FInputActionValue& Value);
@@ -115,3 +128,4 @@ private:
 	//Bool to check for jump peak
 	bool bReachedJumpPeak = false;
 };
+
