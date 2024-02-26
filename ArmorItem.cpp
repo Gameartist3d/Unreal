@@ -1,3 +1,5 @@
+//3DNomad LLC
+
 #include "ArmorItem.h"
 #include "SPCharacter.h"
 
@@ -5,7 +7,7 @@ UArmorItem::UArmorItem()
 {
 	ItemDisplayName = FText::FromString(TEXT("Armor"));
 	UseActionText = FText::FromString(TEXT("Equip"));
-	isArmor = true;
+	ItemType = ESPItemType::Armor;
 }
 
 void UArmorItem::Use(ASPCharacter* Character)
