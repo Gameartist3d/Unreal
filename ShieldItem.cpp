@@ -1,3 +1,6 @@
+//3DNomad LLC
+
+
 #include "ShieldItem.h"
 #include "SPCharacter.h"
 
@@ -6,7 +9,7 @@ UShieldItem::UShieldItem()
 {
 	ItemDisplayName = FText::FromString(TEXT("Shield"));
 	UseActionText = FText::FromString(TEXT("Equip"));
-	isShield = true;
+	ItemType = ESPItemType::Shield;
 }
 
 void UShieldItem::Use(ASPCharacter* Character)
