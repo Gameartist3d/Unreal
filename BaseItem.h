@@ -1,8 +1,12 @@
+//3DNomad LLC
+
 #pragma once
 
 #include "CoreMinimal.h"
 #include "UObject/NoExportTypes.h"
 #include "FCurrency.h"
+#include "ESPItemType.h"
+#include "ESPItemRarity.h"
 #include "BaseItem.generated.h"
 
 /**
@@ -35,13 +39,10 @@ public:
 	FText ItemDisplayName;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Item")
-	bool isWeapon;
+	ESPItemType ItemType;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Item")
-	bool isArmor;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Item")
-	bool isShield;
+	ESPItemRarity ItemRarity;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Item", meta = (MultiLine = true))
 	FText ItemDescription;
