@@ -1,4 +1,5 @@
 // Copyright Epic Games, Inc. All Rights Reserved.
+//3DNomad LLC
 
 #pragma once
 
@@ -7,6 +8,7 @@
 #include "Logging/LogMacros.h"
 #include "StatsComponent.h"
 #include "InventoryComponent.h"
+#include "Components/WidgetComponent.h"
 #include "SPCharacter.generated.h"
 
 class USpringArmComponent;
@@ -29,7 +31,11 @@ class ASPCharacter : public ACharacter
 	/** Follow camera */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 	UCameraComponent* FollowCamera;
-	
+
+	/**UWidgetComponent*/
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Wiget, meta = (AllowPrivateAccess = "true"))
+	UWidgetComponent* WidgetComponent;
+
 	/** MappingContext */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	UInputMappingContext* DefaultMappingContext;
@@ -42,12 +48,33 @@ class ASPCharacter : public ACharacter
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	UInputAction* MoveAction;
 
+	/**Sprint/parkour Input Action*/
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	UInputAction* SprintAction;
+
+	/**Crouch Input Action*/
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	UInputAction* CrouchAction;
+
+	/**Left-Hand Input Action*/
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	UInputAction* LhandAction;
+
+	/**Right-Hand Input Action*/
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	UInputAction* RhandAction;
+
+	/**Interact Input Action*/
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	UInputAction* InteractAction;
 
 	/** Look Input Action */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	UInputAction* LookAction;
+
+	/**Menu Input Action*/
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	UInputAction* MenuAction;
 
 public:
 	ASPCharacter();
@@ -69,6 +96,8 @@ protected:
 
 	//Bool To Track when the Playuur has started to fall 
 	bool bIsFalling;
+
+	bool bIsSprinting;
 
 	//variable to store vault start height
 	float VaultStartHeight;
@@ -92,9 +121,29 @@ protected:
 	void Move(const FInputActionValue& Value);
 
 	void Sprint(const FInputActionValue& Value);
-
 	void StopSprinting(const FInputActionValue& Value);
 
+	void Crouch(const FInputActionValue& Value);
+	void OnCrouchHoldStart(const FInputActionValue& Value);
+	void OnCrouchHoldComplete(const FInputActionValue& Value);
+
+	void Slide(class ACharacter& Character);
+
+	void Interact(const FInputActionValue& Value);
+	void OnInteractHoldStart(const FInputActionValue& Value);
+	void OnInteractHoldComplete(const FInputActionValue& Value);
+
+	void ToggleMenu(const FInputActionValue& Value);
+
+	void UseLeftHand(const FInputActionValue& Value);
+	void OnLhandHoldStart(const FInputActionValue& Value);
+	void OnLhandHoldComplete(const FInputActionValue& Value);
+
+	void UseRightHand(const FInputActionValue& Value);
+	void OnRhandHoldStart(const FInputActionValue& Value);
+	void OnRhandHoldComplete(const FInputActionValue& Value);
+
+	
 	/** Called for looking input */
 	void Look(const FInputActionValue& Value);
 			
@@ -128,4 +177,3 @@ private:
 	//Bool to check for jump peak
 	bool bReachedJumpPeak = false;
 };
-
