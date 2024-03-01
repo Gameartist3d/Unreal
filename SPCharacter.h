@@ -1,179 +1,375 @@
 // Copyright Epic Games, Inc. All Rights Reserved.
 //3DNomad LLC
 
-#pragma once
+#include "SPCharacter.h"
+#include "Engine/LocalPlayer.h"
+#include "Camera/CameraComponent.h"
+#include "Components/CapsuleComponent.h"
+#include "GameFramework/CharacterMovementComponent.h"
+#include "GameFramework/SpringArmComponent.h"
+#include "GameFramework/Controller.h"
+#include "EnhancedInputComponent.h"
+#include "EnhancedInputSubsystems.h"
+#include "InputActionValue.h"
+#include "BaseItem.h"
 
-#include "CoreMinimal.h"
-#include "GameFramework/Character.h"
-#include "Logging/LogMacros.h"
-#include "StatsComponent.h"
-#include "InventoryComponent.h"
-#include "Components/WidgetComponent.h"
-#include "SPCharacter.generated.h"
+DEFINE_LOG_CATEGORY(LogTemplateCharacter);
 
-class USpringArmComponent;
-class UCameraComponent;
-class UInputMappingContext;
-class UInputAction;
-struct FInputActionValue;
+//////////////////////////////////////////////////////////////////////////
+// ASPCharacter
 
-DECLARE_LOG_CATEGORY_EXTERN(LogTemplateCharacter, Log, All);
-
-UCLASS(config=Game)
-class ASPCharacter : public ACharacter
+ASPCharacter::ASPCharacter()
 {
-	GENERATED_BODY()
+	PrimaryActorTick.bCanEverTick = true;
+	// Initialize variables
+	VaultStartHeight = 0.0f;
+	FallStartHeight = 0.0f;
+	bIsFalling = false;
 
-	/** Camera boom positioning the camera behind the character */
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
-	USpringArmComponent* CameraBoom;
+	// Set size for collision capsule
+	GetCapsuleComponent()->InitCapsuleSize(42.f, 96.0f);
+		
+	// Don't rotate when the controller rotates. Let that just affect the camera.
+	bUseControllerRotationPitch = false;
+	bUseControllerRotationYaw = false;
+	bUseControllerRotationRoll = false;
 
-	/** Follow camera */
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
-	UCameraComponent* FollowCamera;
+	// Configure character movement
+	GetCharacterMovement()->bOrientRotationToMovement = true; // Character moves in the direction of input...	
+	GetCharacterMovement()->RotationRate = FRotator(0.0f, 500.0f, 0.0f); // ...at this rotation rate
 
-	/**UWidgetComponent*/
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Wiget, meta = (AllowPrivateAccess = "true"))
-	UWidgetComponent* WidgetComponent;
+	// Note: For faster iteration times these variables, and many more, can be tweaked in the Character Blueprint
+	// instead of recompiling to adjust them
+	GetCharacterMovement()->JumpZVelocity = 700.f;
+	GetCharacterMovement()->AirControl = 0.35f;
+	GetCharacterMovement()->MaxWalkSpeed = 500.f;
+	GetCharacterMovement()->MinAnalogWalkSpeed = 20.f;
+	GetCharacterMovement()->BrakingDecelerationWalking = 2000.f;
+	GetCharacterMovement()->BrakingDecelerationFalling = 1500.0f;
 
-	/** MappingContext */
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
-	UInputMappingContext* DefaultMappingContext;
+	// Create a camera boom (pulls in towards the player if there is a collision)
+	CameraBoom = CreateDefaultSubobject<USpringArmComponent>(TEXT("CameraBoom"));
+	CameraBoom->SetupAttachment(RootComponent);
+	CameraBoom->TargetArmLength = 400.0f; // The camera follows at this distance behind the character	
+	CameraBoom->bUsePawnControlRotation = true; // Rotate the arm based on the controller
 
-	/** Jump Input Action */
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
-	UInputAction* JumpAction;
+	//Create a widgetcomponent
+	WidgetComponent = CreateDefaultSubobject<UWidgetComponent>(TEXT("Menu Widget"));
+	WidgetComponent->SetupAttachment(RootComponent);
+	WidgetComponent->SetWidgetSpace(EWidgetSpace::World);
+	WidgetComponent->SetDrawSize(FVector2D(192, 108));
+	WidgetComponent->SetRelativeLocation(FVector(0, 0, 0));
+	WidgetComponent->SetRelativeRotation(FRotator(0, 0, 0));
 
-	/** Move Input Action */
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
-	UInputAction* MoveAction;
+	// Create a follow camera
+	FollowCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("FollowCamera"));
+	FollowCamera->SetupAttachment(CameraBoom, USpringArmComponent::SocketName); // Attach the camera to the end of the boom and let the boom adjust to match the controller orientation
+	FollowCamera->bUsePawnControlRotation = false; // Camera does not rotate relative to arm
 
-	/**Sprint/parkour Input Action*/
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
-	UInputAction* SprintAction;
+	// Note: The skeletal mesh and anim blueprint references on the Mesh component (inherited from Character) 
+	// are set in the derived blueprint asset named ThirdPersonCharacter (to avoid direct content references in C++)
 
-	/**Crouch Input Action*/
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
-	UInputAction* CrouchAction;
+	PlayuurStatsComponent = CreateDefaultSubobject<UStatsComponent>("Playuur Stats");
+	PlayuurInventoryComponent = CreateDefaultSubobject<UInventoryComponent>("Playuur Inventory");
+	PlayuurInventoryComponent->InventoryCapacity = 100;
+	AttackComponent = CreateDefaultSubobject<USPAttackComponent>("PlayuurAttackComponent");
 
-	/**Left-Hand Input Action*/
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
-	UInputAction* LhandAction;
+}
 
-	/**Right-Hand Input Action*/
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
-	UInputAction* RhandAction;
+void ASPCharacter::BeginPlay()
+{
+	// Call the base class  
+	Super::BeginPlay();
 
-	/**Interact Input Action*/
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
-	UInputAction* InteractAction;
+	//Add Input Mapping Context
+	if (APlayerController* PlayerController = Cast<APlayerController>(Controller))
+	{
+		if (UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PlayerController->GetLocalPlayer()))
+		{
+			Subsystem->AddMappingContext(DefaultMappingContext, 0);
+		}
+	}
+	PreviousZloc = GetActorLocation().Z;
+}
 
-	/** Look Input Action */
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
-	UInputAction* LookAction;
-
-	/**Menu Input Action*/
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
-	UInputAction* MenuAction;
-
-public:
-	ASPCharacter();
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Playuur", meta = (AllowPrivateAccess = "true"))
-	class UInventoryComponent* PlayuurInventoryComponent;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Playuur")
-	class UStatsComponent* PlayuurStatsComponent;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat")
-	class USPAttackComponent* AttackComponent;
-
-	UFUNCTION(BlueprintCallable, Category = "Items")
-	void UseItem(class UBaseItem* Item);
+void ASPCharacter::Tick(float DeltaTime)
+{
+	Super::Tick(DeltaTime);
 	
+	float CurrentVerticalVelocity = GetCharacterMovement()->Velocity.Z;
 
-protected:
+	if (PreviousVerticalVelocity > 0 && CurrentVerticalVelocity <= 0)
+	{
+		if (!bReachedJumpPeak)
+		{
+			bReachedJumpPeak = true;
+			FallStartHeight = GetActorLocation().Z;
+			ExponVaultHeight();
+		}
 
-	//Bool To Track when the Playuur has started to fall 
-	bool bIsFalling;
+	}
+	else if (CurrentVerticalVelocity > 0)
+	{
+		bReachedJumpPeak = false;
+	}
 
-	bool bIsSprinting;
+	PreviousVerticalVelocity = CurrentVerticalVelocity;
+}
 
-	//variable to store vault start height
-	float VaultStartHeight;
+//////////////////////////////////////////////////////////////////////////
+// Input
 
-	//variable to store fall start height
-	float FallStartHeight;
+void ASPCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
+{
+	// Set up action bindings
+	if (UEnhancedInputComponent* EnhancedInputComponent = Cast<UEnhancedInputComponent>(PlayerInputComponent)) {
+		
+		// Jumping
+		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Started, this, &ACharacter::Jump);
+		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Completed, this, &ACharacter::StopJumping);
 
-	//OriginalMaxWalkSpeed variable to preserve original walkspeed during calculations
-	float OriginalWalkSpeed;
+		// Moving
+		EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &ASPCharacter::Move);
 
-	//Time handle for tracking sprint time
-	float SprintTimeStart = 0.0f;
+		//Sprinting
+		EnhancedInputComponent->BindAction(SprintAction, ETriggerEvent::Started, this, &ASPCharacter::Sprint);
+		EnhancedInputComponent->BindAction(SprintAction, ETriggerEvent::Completed, this, &ASPCharacter::StopSprinting);
 
-	//function to calculate and grant exp based on vault height
-	void ExponVaultHeight();
+		//Crouching
+		EnhancedInputComponent->BindAction(CrouchAction, ETriggerEvent::Triggered, this, &ASPCharacter::Crouch);
+		EnhancedInputComponent->BindAction(CrouchAction, ETriggerEvent::Started, this, &ASPCharacter::OnCrouchHoldStart);
+		EnhancedInputComponent->BindAction(CrouchAction, ETriggerEvent::Completed, this, &ASPCharacter::OnCrouchHoldComplete);
 
-	//function to calculate and grant exp based on fall height
-	void ExponFallHeight();
+		//Interact
+		EnhancedInputComponent->BindAction(InteractAction, ETriggerEvent::Triggered, this, &ASPCharacter::Interact);
+		EnhancedInputComponent->BindAction(InteractAction, ETriggerEvent::Started, this, &ASPCharacter::OnInteractHoldStart);
+		EnhancedInputComponent->BindAction(InteractAction, ETriggerEvent::Completed, this, &ASPCharacter::OnInteractHoldComplete);
 
-	/** Called for movement input */
-	void Move(const FInputActionValue& Value);
+		//Use Left Hand
+		EnhancedInputComponent->BindAction(LhandAction, ETriggerEvent::Triggered, this, &ASPCharacter::UseLeftHand);
+		EnhancedInputComponent->BindAction(LhandAction, ETriggerEvent::Started, this, &ASPCharacter::OnLhandHoldStart);
+		EnhancedInputComponent->BindAction(LhandAction, ETriggerEvent::Completed, this, &ASPCharacter::OnLhandHoldComplete);
 
-	void Sprint(const FInputActionValue& Value);
-	void StopSprinting(const FInputActionValue& Value);
+		//Use Right Hand
+		EnhancedInputComponent->BindAction(RhandAction, ETriggerEvent::Triggered, this, &ASPCharacter::UseRightHand);
+		EnhancedInputComponent->BindAction(RhandAction, ETriggerEvent::Started, this, &ASPCharacter::OnRhandHoldStart);
+		EnhancedInputComponent->BindAction(RhandAction, ETriggerEvent::Completed, this, &ASPCharacter::OnRhandHoldComplete);
 
-	void Crouch(const FInputActionValue& Value);
-	void OnCrouchHoldStart(const FInputActionValue& Value);
-	void OnCrouchHoldComplete(const FInputActionValue& Value);
+		//ToggleMenus
+		EnhancedInputComponent->BindAction(MenuAction, ETriggerEvent::Triggered, this, &ASPCharacter::ToggleMenu);
 
-	void Slide(class ACharacter& Character);
+		// Looking
+		EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &ASPCharacter::Look);
+	}
+	else
+	{
+		UE_LOG(LogTemplateCharacter, Error, TEXT("'%s' Failed to find an Enhanced Input component! This template is built to use the Enhanced Input system. If you intend to use the legacy system, then you will need to update this C++ file."), *GetNameSafe(this));
+	}
+}
 
-	void Interact(const FInputActionValue& Value);
-	void OnInteractHoldStart(const FInputActionValue& Value);
-	void OnInteractHoldComplete(const FInputActionValue& Value);
+void ASPCharacter::UseItem(UBaseItem* Item)
+{
+	if (Item) {
+		Item->Use(this);
+		Item->OnUse(this); //BP version
+	}
+}
 
-	void ToggleMenu(const FInputActionValue& Value);
+void ASPCharacter::Move(const FInputActionValue& Value)
+{
+	// input is a Vector2D
+	FVector2D MovementVector = Value.Get<FVector2D>();
 
-	void UseLeftHand(const FInputActionValue& Value);
-	void OnLhandHoldStart(const FInputActionValue& Value);
-	void OnLhandHoldComplete(const FInputActionValue& Value);
+	if (Controller != nullptr)
+	{
+		// find out which way is forward
+		const FRotator Rotation = Controller->GetControlRotation();
+		const FRotator YawRotation(0, Rotation.Yaw, 0);
 
-	void UseRightHand(const FInputActionValue& Value);
-	void OnRhandHoldStart(const FInputActionValue& Value);
-	void OnRhandHoldComplete(const FInputActionValue& Value);
-
+		// get forward vector
+		const FVector ForwardDirection = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);
 	
-	/** Called for looking input */
-	void Look(const FInputActionValue& Value);
-			
+		// get right vector 
+		const FVector RightDirection = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
 
-protected:
-	// APawn interface
-	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
-	
-	// To add mapping context
-	virtual void BeginPlay();
-	virtual void Tick(float DeltaTime) override;
+		// add movement 
+		AddMovementInput(ForwardDirection, MovementVector.Y);
+		AddMovementInput(RightDirection, MovementVector.X);
+	}
+}
 
-	//override the landing event
-	virtual void Landed(const FHitResult& Hit) override;
+void ASPCharacter::Sprint(const FInputActionValue& Value)
+{
+	if (GetCharacterMovement())
+	{
+		if (OriginalWalkSpeed == 0.f)
+		{
+			OriginalWalkSpeed = GetCharacterMovement()->MaxWalkSpeed;
+		}
+		GetCharacterMovement()->MaxWalkSpeed = OriginalWalkSpeed + (14.4f * PlayuurStatsComponent->GetSkilllvl(ESPSkillNames::Sprinting));
+		SprintTimeStart = GetWorld()->GetTimeSeconds();
+		
+	}
+}
 
-public:
-	/** Returns CameraBoom subobject **/
-	FORCEINLINE class USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
-	/** Returns FollowCamera subobject **/
-	FORCEINLINE class UCameraComponent* GetFollowCamera() const { return FollowCamera; }
+void ASPCharacter::StopSprinting(const FInputActionValue& Value)
+{
+	float newsprinttime = GetWorld()->GetTimeSeconds();
+	if (GetCharacterMovement())
+	{
+		//reset maxwalkspeed to original speed
+		GetCharacterMovement()->MaxWalkSpeed = OriginalWalkSpeed;
+		//reset OriginalWalkspeed
+		OriginalWalkSpeed = 0.f;
+		PlayuurStatsComponent->AddSkillExp(ESPSkillNames::Sprinting, 0.5f * (newsprinttime - SprintTimeStart));
 
-	virtual void Jump() override;
+	}
+}
 
-private:
-	// Variable to store the Z location from the last frame
-	float PreviousZloc;
+void ASPCharacter::Look(const FInputActionValue& Value)
+{
+	// input is a Vector2D
+	FVector2D LookAxisVector = Value.Get<FVector2D>();
 
-	//Variable to check the playuur's velocity
-	float PreviousVerticalVelocity = 0.0f;
+	if (Controller != nullptr)
+	{
+		// add yaw and pitch input to controller
+		AddControllerYawInput(LookAxisVector.X);
+		AddControllerPitchInput(LookAxisVector.Y);
+	}
+}
 
-	//Bool to check for jump peak
-	bool bReachedJumpPeak = false;
-};
+void ASPCharacter::Jump()
+{
+	if (CanJump())
+	{
+		VaultStartHeight = GetActorLocation().Z;
+	}
+
+	Super::Jump();
+}
+
+void ASPCharacter::Crouch(const FInputActionValue& Value)
+{
+	if (Value.GetMagnitude() > 0)
+	{
+		Super::Crouch();
+
+		bIsCrouched = true;
+
+		UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
+		if (AnimInstance != nullptr)
+		{
+			/**UYourAnimtaionBlueprintClassName* MyAnimBP = Cast<UYourAnimationBlueprintClassName>(AnimInstance);
+			if (MyAnimBP != nullptr)
+			{
+			MyAnimBP->SetisCrouching(true);
+			}
+			*/
+		}
+	}
+	else
+	{
+		Super::UnCrouch();
+
+		bIsCrouched = false;
+
+		/**UYourAnimtaionBlueprintClassName* MyAnimBP = Cast<UYourAnimationBlueprintClassName>(AnimInstance);
+			if (MyAnimBP != nullptr)
+			{
+			MyAnimBP->SetisCrouching(false);
+			}
+			*/
+	}
+}
+
+void ASPCharacter::OnCrouchHoldStart(const FInputActionValue& Value)
+{
+
+}
+
+void ASPCharacter::OnCrouchHoldComplete(const FInputActionValue& Value)
+{
+
+}
+
+void ASPCharacter::Slide(class ACharacter& Character)
+{
+
+}
+
+void ASPCharacter::Interact(const FInputActionValue& Value)
+{
+
+}
+
+void ASPCharacter::OnInteractHoldStart(const FInputActionValue& Value)
+{
+
+}
+
+void ASPCharacter::OnInteractHoldComplete(const FInputActionValue& Value)
+{
+
+}
+
+void ASPCharacter::UseLeftHand(const FInputActionValue& Value)
+{
+
+}
+
+void ASPCharacter::OnLhandHoldStart(const FInputActionValue& Value)
+{
+
+}
+
+void ASPCharacter::OnLhandHoldComplete(const FInputActionValue& Value)
+{
+
+}
+
+void ASPCharacter::UseRightHand(const FInputActionValue& Value)
+{
+
+}
+
+void ASPCharacter::OnRhandHoldStart(const FInputActionValue& Value)
+{
+
+}
+
+void ASPCharacter::OnRhandHoldComplete(const FInputActionValue& Value)
+{
+
+}
+
+void ASPCharacter::ToggleMenu(const FInputActionValue& Value)
+{
+
+}
+
+void ASPCharacter::Landed(const FHitResult& Hit)
+{
+	Super::Landed(Hit);
+
+	ExponFallHeight();
+}
+
+void ASPCharacter::ExponVaultHeight()
+{
+	float VaultHeight = GetActorLocation().Z - VaultStartHeight;
+
+	float ExperiencePoints = FMath::RoundToFloat(VaultHeight / 100);
+
+	PlayuurStatsComponent->AddSkillExp(ESPSkillNames::Vaulting, ExperiencePoints);
+
+}
+
+void ASPCharacter::ExponFallHeight()
+{
+	float FallHeight = FallStartHeight - GetActorLocation().Z;
+
+	float ExperiencePoints = FMath::RoundToFloat(FallHeight/100);
+
+	PlayuurStatsComponent->AddSkillExp(ESPSkillNames::Vaulting, ExperiencePoints);
+}
