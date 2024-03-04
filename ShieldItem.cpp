@@ -14,5 +14,5 @@ UShieldItem::UShieldItem()
 
 void UShieldItem::Use(ASPCharacter* Character)
 {
-	Character->PlayuurInventoryComponent->Shield = this;
+	
 }
