@@ -15,6 +15,8 @@ FHealthVariables::FHealthVariables()
 	DamHealth = 0.0f;
 	RecHealth = 0.0f;
 	PoisHealth = 0.0f;
+	HeatAmount = 0.0f;
+	ColdAmount = 0.0f;
 }
 
 FHealthVariables::~FHealthVariables()
