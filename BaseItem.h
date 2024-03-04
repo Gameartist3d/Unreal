@@ -7,6 +7,7 @@
 #include "FCurrency.h"
 #include "ESPItemType.h"
 #include "ESPItemRarity.h"
+#include "ESPEquipmentSlot.h"
 #include "BaseItem.generated.h"
 
 /**
@@ -43,6 +44,9 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Item")
 	ESPItemRarity ItemRarity;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Item")
+	TArray<ESPEquipmentSlot> ItemSlots;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Item", meta = (MultiLine = true))
 	FText ItemDescription;
