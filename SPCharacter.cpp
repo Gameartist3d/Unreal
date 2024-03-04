@@ -1,4 +1,5 @@
 // Copyright Epic Games, Inc. All Rights Reserved.
+//3DNomad LLC
 
 #include "SPCharacter.h"
 #include "Engine/LocalPlayer.h"
@@ -51,6 +52,14 @@ ASPCharacter::ASPCharacter()
 	CameraBoom->SetupAttachment(RootComponent);
 	CameraBoom->TargetArmLength = 400.0f; // The camera follows at this distance behind the character	
 	CameraBoom->bUsePawnControlRotation = true; // Rotate the arm based on the controller
+
+	//Create a widgetcomponent
+	WidgetComponent = CreateDefaultSubobject<UWidgetComponent>(TEXT("Menu Widget"));
+	WidgetComponent->SetupAttachment(RootComponent);
+	WidgetComponent->SetWidgetSpace(EWidgetSpace::World);
+	WidgetComponent->SetDrawSize(FVector2D(192, 108));
+	WidgetComponent->SetRelativeLocation(FVector(0, 0, 0));
+	WidgetComponent->SetRelativeRotation(FRotator(0, 0, 0));
 
 	// Create a follow camera
 	FollowCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("FollowCamera"));
@@ -124,8 +133,30 @@ void ASPCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 
 		//Sprinting
 		EnhancedInputComponent->BindAction(SprintAction, ETriggerEvent::Started, this, &ASPCharacter::Sprint);
-		EnhancedInputComponent->BindAction(SprintAction, ETriggerEvent::Ongoing, this, &ASPCharacter::DuringSprint);
 		EnhancedInputComponent->BindAction(SprintAction, ETriggerEvent::Completed, this, &ASPCharacter::StopSprinting);
+
+		//Crouching
+		EnhancedInputComponent->BindAction(CrouchAction, ETriggerEvent::Triggered, this, &ASPCharacter::Crouch);
+		EnhancedInputComponent->BindAction(CrouchAction, ETriggerEvent::Started, this, &ASPCharacter::OnCrouchHoldStart);
+		EnhancedInputComponent->BindAction(CrouchAction, ETriggerEvent::Completed, this, &ASPCharacter::OnCrouchHoldComplete);
+
+		//Interact
+		EnhancedInputComponent->BindAction(InteractAction, ETriggerEvent::Triggered, this, &ASPCharacter::Interact);
+		EnhancedInputComponent->BindAction(InteractAction, ETriggerEvent::Started, this, &ASPCharacter::OnInteractHoldStart);
+		EnhancedInputComponent->BindAction(InteractAction, ETriggerEvent::Completed, this, &ASPCharacter::OnInteractHoldComplete);
+
+		//Use Left Hand
+		EnhancedInputComponent->BindAction(LhandAction, ETriggerEvent::Triggered, this, &ASPCharacter::UseLeftHand);
+		EnhancedInputComponent->BindAction(LhandAction, ETriggerEvent::Started, this, &ASPCharacter::OnLhandHoldStart);
+		EnhancedInputComponent->BindAction(LhandAction, ETriggerEvent::Completed, this, &ASPCharacter::OnLhandHoldComplete);
+
+		//Use Right Hand
+		EnhancedInputComponent->BindAction(RhandAction, ETriggerEvent::Triggered, this, &ASPCharacter::UseRightHand);
+		EnhancedInputComponent->BindAction(RhandAction, ETriggerEvent::Started, this, &ASPCharacter::OnRhandHoldStart);
+		EnhancedInputComponent->BindAction(RhandAction, ETriggerEvent::Completed, this, &ASPCharacter::OnRhandHoldComplete);
+
+		//ToggleMenus
+		EnhancedInputComponent->BindAction(MenuAction, ETriggerEvent::Triggered, this, &ASPCharacter::ToggleMenu);
 
 		// Looking
 		EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &ASPCharacter::Look);
@@ -216,6 +247,105 @@ void ASPCharacter::Jump()
 	}
 
 	Super::Jump();
+}
+
+void ASPCharacter::Crouch(const FInputActionValue& Value)
+{
+	if (Value.GetMagnitude() > 0)
+	{
+		Super::Crouch();
+
+		bIsCrouched = true;
+
+		UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
+		if (AnimInstance != nullptr)
+		{
+			/**UYourAnimtaionBlueprintClassName* MyAnimBP = Cast<UYourAnimationBlueprintClassName>(AnimInstance);
+			if (MyAnimBP != nullptr)
+			{
+			MyAnimBP->SetisCrouching(true);
+			}
+			*/
+		}
+	}
+	else
+	{
+		Super::UnCrouch();
+
+		bIsCrouched = false;
+
+		/**UYourAnimtaionBlueprintClassName* MyAnimBP = Cast<UYourAnimationBlueprintClassName>(AnimInstance);
+			if (MyAnimBP != nullptr)
+			{
+			MyAnimBP->SetisCrouching(false);
+			}
+			*/
+	}
+}
+
+void ASPCharacter::OnCrouchHoldStart(const FInputActionValue& Value)
+{
+
+}
+
+void ASPCharacter::OnCrouchHoldComplete(const FInputActionValue& Value)
+{
+
+}
+
+void ASPCharacter::Slide()
+{
+
+}
+
+void ASPCharacter::Interact(const FInputActionValue& Value)
+{
+
+}
+
+void ASPCharacter::OnInteractHoldStart(const FInputActionValue& Value)
+{
+
+}
+
+void ASPCharacter::OnInteractHoldComplete(const FInputActionValue& Value)
+{
+
+}
+
+void ASPCharacter::UseLeftHand(const FInputActionValue& Value)
+{
+
+}
+
+void ASPCharacter::OnLhandHoldStart(const FInputActionValue& Value)
+{
+
+}
+
+void ASPCharacter::OnLhandHoldComplete(const FInputActionValue& Value)
+{
+
+}
+
+void ASPCharacter::UseRightHand(const FInputActionValue& Value)
+{
+
+}
+
+void ASPCharacter::OnRhandHoldStart(const FInputActionValue& Value)
+{
+
+}
+
+void ASPCharacter::OnRhandHoldComplete(const FInputActionValue& Value)
+{
+
+}
+
+void ASPCharacter::ToggleMenu(const FInputActionValue& Value)
+{
+
 }
 
 void ASPCharacter::Landed(const FHitResult& Hit)
