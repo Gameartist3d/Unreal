@@ -38,6 +38,12 @@ struct FHealthVariables
     UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Health")
     float DamHealth;
 
+    UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "WeatherCondition")
+    float HeatAmount;
+
+    UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "WeatherCondition")
+    float ColdAmount;
+
     //health to recover
     UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Health")
     float RecHealth;
