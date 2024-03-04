@@ -13,7 +13,7 @@ UWeaponItem::UWeaponItem() {
 
 void UWeaponItem::Use(ASPCharacter* Character)
 {
-	Character->PlayuurInventoryComponent->NewWeapon = this;
+	
 }
 
 
