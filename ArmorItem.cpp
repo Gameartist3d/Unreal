@@ -12,5 +12,5 @@ UArmorItem::UArmorItem()
 
 void UArmorItem::Use(ASPCharacter* Character)
 {
-	Character->PlayuurInventoryComponent->Armor = this;
+	
 }
