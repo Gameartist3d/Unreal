@@ -1,3 +1,6 @@
+//3DNomad LLC
+
+
 #include "InventoryComponent.h"
 #include "BaseItem.h"
 
@@ -47,18 +50,35 @@ UInventoryComponent::UInventoryComponent()
 		return false;
 	}
 
-	void UInventoryComponent::EquipWeapon(UWeaponItem* WeaponSlot, UWeaponItem* newWeapon)
+	void UInventoryComponent::EquipSlot(ESPEquipmentSlot SlotToEquip, UBaseItem* ItemToEquip)
 	{
-		if (WeaponSlot && newWeapon) {
-			WeaponSlot = newWeapon;
-			OnWeaponSlotUpdated.Broadcast();
+		if (ItemToEquip->ItemSlots.Contains(SlotToEquip))
+		{
+			if (EquippedItems.Contains(SlotToEquip))
+			{
+				UnEquipSlot(SlotToEquip);
+			}
+
+			EquippedItems.Add(SlotToEquip, ItemToEquip);
+
+			ApplyItemEffects(ItemToEquip);
+
+			OnSlotUpdated.Broadcast(SlotToEquip);
 		}
 	}
 
-	void UInventoryComponent::UnEquipWeapon(UWeaponItem* WeaponSlot)
+	void UInventoryComponent::UnEquipSlot(ESPEquipmentSlot SlotToUnEquip)
 	{
-		if (WeaponSlot) {
-			WeaponSlot = nullptr;
-			OnWeaponSlotUpdated.Broadcast();
+		if (EquippedItems.Contains(SlotToUnEquip))
+		{
+			EquippedItems.Remove(SlotToUnEquip);
+			OnSlotUpdated.Broadcast(SlotToUnEquip);
 		}
 	}
+
+	void UInventoryComponent::ApplyItemEffects(UBaseItem* ItemtoUse)
+	{
+
+	}
+
+
