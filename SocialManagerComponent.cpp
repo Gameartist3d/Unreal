@@ -13,6 +13,7 @@ USocialManagerComponent::USocialManagerComponent()
 	// ...
 }
 
+//TODO Add interaction to dialogue options and then set the next active talker
 void USocialManagerComponent::SetDialogueChoice()
 {
 	OnDialogueChoiceUpdated.Broadcast();
@@ -31,17 +32,30 @@ void USocialManagerComponent::BeginPlay()
 	// ...
 	
 }
-//TODO create a universal social component that all characters share so that this function can just reference that component.
-void USocialManagerComponent::GiveTopicKnowledge(TArray<class AKnowledgeTopic*> Topics, class ACharacter* Character) {
+
+void USocialManagerComponent::GiveTopicKnowledge(TArray<class UKnowledgeTopic*> Topics, class ACharacter* Character) {
 	
 	for (auto foundcharacter : TalkingCharacters) {
 		if(foundcharacter == Character){
-//TODO reference the component here and add topics.
-			return;
+			UUSocialComponent* SocialComponent = Cast<UUSocialComponent>(foundcharacter->GetComponentByClass(UUSocialComponent::StaticClass()));
+			if (SocialComponent){
+				for (auto foundtopic : Topics) {
+					SocialComponent->AddDialogueTopic(foundtopic);
+				}
+			}
 		}
 	}
 }
+//TODO add a function to add local characters that would be interested in the convo
+void USocialManagerComponent::AddTalkingCharacter(class ACharacter* TalkingCharacter) {
 
+	TalkingCharacters.Add(TalkingCharacter);
+}
+
+void USocialManagerComponent::SetActiveTalkingCharacter(class ACharacter* ActiveCharacter) {
+
+	ActiveTalkingCharacter = ActiveCharacter;
+}
 
 // Called every frame
 void USocialManagerComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
@@ -50,3 +64,4 @@ void USocialManagerComponent::TickComponent(float DeltaTime, ELevelTick TickType
 
 	// ...
 }
+
