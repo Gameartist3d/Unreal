@@ -10,7 +10,7 @@
  * 
  */
 UCLASS(Blueprintable)
-class SP_API KnowledgeTopic
+class SP_API UKnowledgeTopic : public UObject
 {
 	GENERATED_BODY()
 
@@ -23,11 +23,11 @@ public:
 	FString TopicDescription;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Dialogue")
-	TArray<class FString> DialogueNames;
+	TArray<FString> DialogueNames;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Topic")
 	EKnowledgeFamiliarity KnowledgeFamiliarity;
 
-	KnowledgeTopic();
-	~KnowledgeTopic();
+	UKnowledgeTopic();
+	~UKnowledgeTopic();
 };
