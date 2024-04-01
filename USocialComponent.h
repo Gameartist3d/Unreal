@@ -1,6 +1,3 @@
-//3DNomad LLC
-
-#pragma once
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
@@ -19,17 +16,26 @@ public:
 	UUSocialComponent();
 
 	UPROPERTY(BlueprintAssignable, Category = "Dialogue")
-	FDialogueOptionsUpdated DialogueOptionsUpdated;
+	FDialogueOptionsUpdated DialogueOptionsUpdated; 
 
-	void AddDialogueTopic(class UKnowledgeTopic* Topic);
-	void RemoveDialogueTopic(class UKnowledgeTopic* Topic);
+	UFUNCTION(BlueprintCallable, Category = "Topics")
+	void AddTopic(FString Topic, EKnowledgeFamiliarity Familiarity);
+
+	UFUNCTION(BlueprintCallable, Category = "Topics")
+	EKnowledgeFamiliarity GetTopicFamiliarity(FString Topic);
+
+	UFUNCTION(BlueprintCallable, Category = "Topics")
+	void SetTopicFamiliarity(FString Topic, EKnowledgeFamiliarity Familiarity);
+
+	UFUNCTION(BlueprintCallable, Category = "Topics")
+	void RemoveTopic(FString Topic);
 
 protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
 
 	UPROPERTY(EditAnywhere, Category = "Dialogue")
-	TArray<class UKnowledgeTopic*> DialogueTopics;
+	TMap<FString, EKnowledgeFamiliarity> TopicKnowledge;
 
 public:	
 	// Called every frame
