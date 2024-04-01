@@ -9,22 +9,47 @@ UUSocialComponent::UUSocialComponent()
 	PrimaryComponentTick.bCanEverTick = false;
 }
 
+void UUSocialComponent::AddTopic(FString Topic, EKnowledgeFamiliarity Familiarity)
+{
+	if (!TopicKnowledge.Contains(Topic)) {
+		TopicKnowledge.Add(Topic, Familiarity);
+	}
+}
+
+EKnowledgeFamiliarity UUSocialComponent::GetTopicFamiliarity(FString Topic)
+{
+	if (TopicKnowledge.Contains(Topic)) {
+		return TopicKnowledge[Topic];
+	}
+	else
+{
+	return EKnowledgeFamiliarity();
+}
+}
+
+
+void UUSocialComponent::SetTopicFamiliarity(FString Topic, EKnowledgeFamiliarity Familiarity)
+{
+	if (TopicKnowledge.Contains(Topic)) {
+		TopicKnowledge[Topic] = Familiarity;
+	}
+	else {
+		TopicKnowledge.Add(Topic, Familiarity);
+}
+}
+
+void UUSocialComponent::RemoveTopic(FString Topic)
+{
+	if (TopicKnowledge.Contains(Topic)) {
+		TopicKnowledge.Remove(Topic);
+	}
+}
 
 // Called when the game starts
 void UUSocialComponent::BeginPlay()
 {
 	Super::BeginPlay();
 	
-}
-
-//Add Dialogue Topic
-void UUSocialComponent::AddDialogueTopic(class UKnowledgeTopic* Topic) {
-	DialogueTopics.Add(Topic);
-}
-
-//Remove Dialogue Topic
-void UUSocialComponent::RemoveDialogueTopic(class UKnowledgeTopic* Topic) {
-	DialogueTopics.Remove(Topic);
 }
 
 // Called every frame
