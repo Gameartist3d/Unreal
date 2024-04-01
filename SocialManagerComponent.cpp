@@ -6,11 +6,7 @@
 // Sets default values for this component's properties
 USocialManagerComponent::USocialManagerComponent()
 {
-	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
-	// off to improve performance if you don't need them.
 	PrimaryComponentTick.bCanEverTick = false;
-
-	// ...
 }
 
 //TODO Add interaction to dialogue options and then set the next active talker
@@ -33,6 +29,16 @@ void USocialManagerComponent::BeginPlay()
 	
 }
 
+void USocialManagerComponent::AddDialogueOption(class UDialogueOption* Topic) {
+	
+	DialogueOptions.Add(Topic);
+}
+
+void USocialManagerComponent::RemoveDialogueOption(UDialogueOption* Topic)
+{
+	DialogueOptions.Remove(Topic);
+}
+
 void USocialManagerComponent::GiveTopicKnowledge(TArray<class UKnowledgeTopic*> Topics, class ACharacter* Character) {
 	
 	for (auto foundcharacter : TalkingCharacters) {
@@ -40,7 +46,7 @@ void USocialManagerComponent::GiveTopicKnowledge(TArray<class UKnowledgeTopic*> 
 			UUSocialComponent* SocialComponent = Cast<UUSocialComponent>(foundcharacter->GetComponentByClass(UUSocialComponent::StaticClass()));
 			if (SocialComponent){
 				for (auto foundtopic : Topics) {
-					SocialComponent->AddDialogueTopic(foundtopic);
+					SocialComponent->AddTopic(foundtopic->TopicName, foundtopic->KnowledgeFamiliarity);
 				}
 			}
 		}
