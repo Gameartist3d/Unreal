@@ -22,9 +22,6 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Topic")
 	FString TopicDescription;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Dialogue")
-	TArray<FString> DialogueNames;
-
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Topic")
 	EKnowledgeFamiliarity KnowledgeFamiliarity;
 
