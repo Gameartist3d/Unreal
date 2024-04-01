@@ -18,8 +18,26 @@ public:
 	// Sets default values for this component's properties
 	UNPCSocialComponent();
 
-	UPROPERTY(EditAnywhere, Category = "Playuur")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Playuur")
 	ASPCharacter* TalkingPlayuur;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "NPCSocial")
+	float MaxDistanceToTalk = 1000.0f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "NPCSocial")
+	float MinDistanceToTalk = 1.0f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "NPCSocial")
+	float MaxWaitTime = 10.0f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "NPCSocial")
+	bool bCanTalk = true;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "NPCSocial")
+	bool bIsTalking = false;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "NPCSocial")
+	bool bIsFocusedonPlayuur = false;
 
 protected:
 	// Called when the game starts
