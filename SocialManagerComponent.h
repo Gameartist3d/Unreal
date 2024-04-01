@@ -89,6 +89,15 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Dialogue")
 	void SetActiveTalkingCharacter(class ACharacter* ActiveCharacter);
 
+	UFUNCTION(BlueprintCallable, Category = "Dialogue")
+	void RemoveTalkingCharacter(class ACharacter* TalkingCharacter);
+
+	UFUNCTION(BlueprintCallable, Category = "Dialogue")
+	void AddDialogueOption(class UDialogueOption* Topic);
+
+	UFUNCTION(BlueprintCallable, Category = "Dialogue")
+	void RemoveDialogueOption(class UDialogueOption* Topic);
+
 protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
