@@ -63,6 +63,11 @@ void USocialManagerComponent::SetActiveTalkingCharacter(class ACharacter* Active
 	ActiveTalkingCharacter = ActiveCharacter;
 }
 
+void USocialManagerComponent::RemoveTalkingCharacter(ACharacter* TalkingCharacter)
+{
+	TalkingCharacters.Remove(TalkingCharacter);
+}
+
 // Called every frame
 void USocialManagerComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
