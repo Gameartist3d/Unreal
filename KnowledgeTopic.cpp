@@ -3,12 +3,13 @@
 
 #include "KnowledgeTopic.h"
 
-KnowledgeTopic::KnowledgeTopic()
+UKnowledgeTopic::UKnowledgeTopic()
 {
-	TopicName = "Default";
+	TopicName = ("Default");
 	TopicDescription = "Default Description";
+	KnowledgeFamiliarity = EKnowledgeFamiliarity::Unknown;
 }
 
-KnowledgeTopic::~KnowledgeTopic()
+UKnowledgeTopic::~UKnowledgeTopic()
 {
 }
