@@ -22,8 +22,6 @@ struct FDialogueChoices
 {
 	GENERATED_BODY()
 
-public:
-
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Dialogue")
 	FText DialogueText;
 
@@ -33,7 +31,16 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Dialogue")
 	EKnowledgeFamiliarity DialogueKnowledgeCheck;
 
-	
+	bool operator==(const FDialogueChoices& Other) const
+	{
+		return DialogueText.EqualTo(Other.DialogueText);
+	}
+
+	FDialogueChoices()
+	{
+		DialogueText = FText::FromString("Default Dialogue Text");
+		DialogueKnowledgeCheck = EKnowledgeFamiliarity::Unfamiliar;
+	}
 };
 
 UCLASS(Blueprintable)
@@ -62,10 +69,10 @@ public:
 	TArray<FDialogueChoices> DialogueChoices;
 
 	UFUNCTION(BlueprintCallable, Category = "Dialogue")
-	void AddDialogueChoice(FDialogueChoices DialogueChoice);
+	void AddDialogueChoice(FDialogueChoices dialoguechoice);
 
 	UFUNCTION(BlueprintCallable, Category = "Dialogue")
-	void RemoveDialogueChoice(FDialogueChoices DialogueChoice);
+	void RemoveDialogueChoice(FDialogueChoices dialoguechoice);
 
 	UFUNCTION(BlueprintCallable, Category = "Dialogue")
 	void AddDialogueName(FString DialogueName);
