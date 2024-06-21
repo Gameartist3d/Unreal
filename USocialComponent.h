@@ -1,3 +1,6 @@
+//3DNomad LLC
+
+#pragma once
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
@@ -29,6 +32,9 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "Topics")
 	void RemoveTopic(FString Topic);
+
+	UFUNCTION(BlueprintCallable, Category = "NPCSocial")
+	void StartDialogue(AActor* Interactor);
 
 protected:
 	// Called when the game starts
