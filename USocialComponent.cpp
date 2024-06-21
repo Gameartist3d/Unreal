@@ -27,6 +27,10 @@ EKnowledgeFamiliarity UUSocialComponent::GetTopicFamiliarity(FString Topic)
 }
 }
 
+void UUSocialComponent::StartDialogue(AActor* Interactor)
+{
+	//Start the dialogue with the interactor
+}
 
 void UUSocialComponent::SetTopicFamiliarity(FString Topic, EKnowledgeFamiliarity Familiarity)
 {
