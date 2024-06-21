@@ -1,3 +1,5 @@
+//3DNomad LLC
+
 #pragma once
 
 #include "CoreMinimal.h"
@@ -15,9 +17,12 @@ struct FSPSanityStruct
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Sanity")
 	float MaxSanity;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stamina")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Sanity")
 	float CurSanity;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stamina")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Sanity")
 	float DamSanity;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Sanity")
+	float RecSanity;
 };
