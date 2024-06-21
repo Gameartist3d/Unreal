@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+//3DNomad LLC
 
 #pragma once
 
@@ -33,13 +33,17 @@ public:
 	// Sets default values for this component's properties
 	UStatsComponent();
 
-	//playuur's level
+	//character's level
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stats")
-	int32 PlayuurLevel;
+	int32 CharacterLevel;
+
+	//character's name
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stats")
+	FText CharacterName;
 
 	//current playuur level experience
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stats")
-	float PlayuurLvlExp;
+	float CharacterLvlExp;
 
 	//Struct holding Stamina variables
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stamina")
@@ -50,12 +54,32 @@ public:
 	FSPSanityStruct Sanity;
 
 	//Struct holding magicka variables
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Sanity")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Magicka")
 	FMagickaStruct Magicka;
 
 	/**Array of Structs for HealthPoints*/
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Health")
     TArray<FHealthVariables> BodyHealth;
+
+	//Magicka Regen Rate
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Magicka")
+	float MagickaRegenRate;
+
+	//Channeling Strength
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Magicka")
+	float ChannelingStrength;
+
+	//Weight Limit
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category ="Encumberance")
+	float WeightLimit;
+
+	//Current Weight
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Encumberance")
+	float CurrentWeight;
+
+	//float for Aggro Amount
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AI")
+	float AggroAmount;
 
 	//Delegate for stats update
 	UPROPERTY(BlueprintAssignable, Category = "Stats")
@@ -89,17 +113,13 @@ public:
 	UPROPERTY(BlueprintAssignable, Category = "Skills")
 	FOnSkillUpdated OnSkillUpdated;
 
-	//add damage type to specific bodypart
-	UFUNCTION(BlueprintCallable, Category = "Health")
-	void DamageToBodyHealth(FSPDamageType damage, ESPHealthVarNames bodypart);
-
 	//Function to add exp to Playuurlvlexp
 	UFUNCTION(BlueprintCallable, Category = "Stats")
-	void AddPlayuurlvlExp(float exptoadd);
+	void AddCharacterlvlExp(float exptoadd);
 
 	//Function to check if playuur lvl has increased
 	UFUNCTION(BlueprintCallable, Category = "Stats")
-	void CheckPlayuurlvlup();
+	void CheckCharacterlvlup();
 
 	//Function to add exp to attribute
 	UFUNCTION(BlueprintCallable, Category = "Attributes")
@@ -136,6 +156,10 @@ public:
 	//function to return int32 lvl of attribute
 	UFUNCTION(BlueprintCallable, Category = "Get Stats")
 	int32 GetAttributelvl(EAttributeName Attributename);
+
+	//function to check if the health variable status has changed
+	UFUNCTION(BlueprintCallable, Category = "Health")
+	void CheckHealthVarStatus(FHealthVariables healthvar);
 
 protected:
 	// Called when the game starts
