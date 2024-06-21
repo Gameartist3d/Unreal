@@ -1,4 +1,4 @@
-// 3DNomad LLC
+ // 3DNomad LLC
 
 #pragma once
 
@@ -28,10 +28,28 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Skill")
 	float SkillExp;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Skills")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Disciplines")
 	ESPDisciplineNames ParentDiscipline;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Skills")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Disciplines")
 	ESPDisciplineNames MinorDiscipline;
 
+	FSkill()
+		: SkillName(ESPSkillNames::MartialCombat),
+		SkillIcon(nullptr),
+		SkillLvl(1),
+		SkillExp(0.0f),
+		ParentDiscipline(ESPDisciplineNames::Strength),
+		MinorDiscipline(ESPDisciplineNames::Endurance)
+	{
+	}
+	FSkill(ESPSkillNames name, UTexture2D* icon, int32 lvl, float exp, ESPDisciplineNames parent, ESPDisciplineNames minor)
+		: SkillName(name),
+		SkillIcon(icon),
+		SkillLvl(lvl),
+		SkillExp(exp),
+		ParentDiscipline(parent),
+		MinorDiscipline(minor)
+	{
+	}
 };
