@@ -1,4 +1,4 @@
-//3DNomad LLC
+ //3DNomad LLC
 
 #pragma once
 
@@ -6,8 +6,9 @@
 #include "Components/ActorComponent.h"
 #include "FAmmo.h"
 #include "FThrowable.h"
-#include "FCurrency.h"
+#include "ESPCurrency.h"
 #include "ESPEquipmentSlot.h"
+#include "StatsComponent.h"
 #include "InventoryComponent.generated.h"
 
 //For updating the UI
@@ -27,14 +28,17 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Inventory")
 	int32 InventoryCapacity;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Inventory")
+	int32 InventoryLockStrength;
+
 	virtual void BeginPlay() override;
 
-	bool AddItem(class UBaseItem* Item);
-	bool RemoveItem(class UBaseItem* Item);
+	bool AddItem(class ASPBaseItem* Item);
+	bool RemoveItem(class ASPBaseItem* Item);
 
 	//Function for adding UBaseItem to a specific equipment slot
 	UFUNCTION(BlueprintCallable, Category = "Equipment")
-	void EquipSlot(ESPEquipmentSlot SlotToEquip, UBaseItem* ItemToEquip);
+	void EquipSlot(ESPEquipmentSlot SlotToEquip, ASPBaseItem* ItemToEquip);
 
 	//Function for unequipping equipment slot
 	UFUNCTION(BlueprintCallable, Category = "Equipment")
@@ -42,11 +46,15 @@ public:
 
 	//Function for applying Item effects
 	UFUNCTION(BlueprintCallable, Category = "Item")
-	void ApplyItemEffects(UBaseItem* ItemtoUse);
+	void ApplyItemEffects(ASPBaseItem* ItemtoUse);
+
+	//Function for removing Item effects
+	UFUNCTION(BlueprintCallable, Category = "Item")
+	void RemoveItemEffects(ASPBaseItem* ItemToRemove);
 
 	//Tarray of default items that get added to inventory storage
 	UPROPERTY(EditDefaultsOnly, Instanced)
-	TArray<class UBaseItem*> DefaultItems;
+	TArray<class ASPBaseItem*> DefaultItems;
 
 	//Delegate for upadting the inventory 
 	UPROPERTY(BlueprintAssignable, Category = "Inventory")
@@ -56,25 +64,41 @@ public:
 	UPROPERTY(BlueprintAssignable, Category ="Weapon")
 	FOnEquipSlotUpdated OnSlotUpdated;
 
+	//Function for adding ammo to the inventory
+	UFUNCTION(BlueprintCallable, Category = "Ammo")
+	void AddAmmo(ESPAmmoName AmmoToAdd, float amount);
+
+	//Function for removing ammo from the inventory
+	UFUNCTION(BlueprintCallable, Category = "Ammo")
+	void RemoveAmmo(ESPAmmoName AmmoToRemove, float amount);
+
+	//Function for adding currency to the inventory
+	UFUNCTION(BlueprintCallable, Category = "Currency")
+	void AddCurrency(ESPCurrency CurrencyToAdd, float amount);
+
+	//Function for removing currency from the inventory
+	UFUNCTION(BlueprintCallable, Category = "Currency")
+	void RemoveCurrency(ESPCurrency CurrencyToRemove, float amount);
+
 	//Tarray of items in inventory storage
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Inventory")
-	TArray<class UBaseItem*> InventoryItems;
+	TArray<class ASPBaseItem*> InventoryItems;
 
 	//Tmap using the equipment slot as the key and a baseitem as the object
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Equipment")
-	TMap<ESPEquipmentSlot, UBaseItem*> EquippedItems;
+	TMap<ESPEquipmentSlot, ASPBaseItem*> EquippedItems;
 
 	//Tarray of throwable items
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Inventory")
-	TArray<FThrowable> Throwables;
+	TMap<FString, int32> Throwables;
 
 	//Tmap using ammo struct as the key and int32 for the amount of ammo
 	UPROPERTY(EditAnywhere, BlueprintReadonly, Category = "Ammo")
-	TArray<FAmmo> Ammo;
+	TMap<ESPAmmoName, float> Ammo;
 
 	//Tmap using currency struct as the key and float for the amount
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Inventory")
-	TArray<FCurrency> Currencies;
+	TMap<ESPCurrency, float> Currencies;
 
 		
 };
