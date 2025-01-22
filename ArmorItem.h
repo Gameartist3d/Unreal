@@ -3,14 +3,14 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "SPBaseItem.h"
-#include "ESPHealthVarNames.h"
-#include "ESPDamageType.h"
+#include "SPItem.h"
+#include "FDamage.h"
 #include "ArmorItem.generated.h"
 
 /**
  * 
  */
+
 UENUM(BlueprintType)
 enum class EArmorColour : uint8
 {
@@ -32,29 +32,27 @@ enum class EArmorColour : uint8
 	Black
 };
 
-UCLASS(BlueprintType, Blueprintable, DefaultToInstanced)
-class SP_API AArmorItem : public ASPBaseItem
+UCLASS()
+class SPV1_API UArmorItem : public USPItem
 {
 	GENERATED_BODY()
 
 public:
+	/*Variables*/
 
-	AArmorItem();
-
-	//Damage Resistance
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Resistances")
-	TMap<ESPDamageType, float> ArmorResistances;
-
-	//Health variable names that will be affected by the armor
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Health")
-	TArray<ESPHealthVarNames> AffectedHealthVariables;
+	//TMap of resistances
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Armor")
+		TMap<EDamageType, float> ArmorResistances;
 
 	//Armor Colour
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Colour")
 	EArmorColour Colour;
 
-protected:
+	/*Functions*/
 
-	virtual void Use(class ASPCharacter* Character)override;
-	
+	UArmorItem();
+
+	/*Overrides*/
+
+	virtual void Use(APlayerCharacter* Character)override;
 };
