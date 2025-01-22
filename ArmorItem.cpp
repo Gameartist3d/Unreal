@@ -1,20 +1,17 @@
 //3DNomad LLC
 
-#include "ArmorItem.h"
-#include "SPCharacter.h"
 
-AArmorItem::AArmorItem()
+#include "ArmorItem.h"
+
+UArmorItem::UArmorItem()
 {
-	ItemDisplayName = FText::FromString(TEXT("Armor"));
-	ItemType = ESPItemType::Armor;
-	ItemSlots.Add(ESPEquipmentSlot::Armor);
-	InteractionComponent->InteractionTypes.Add(EInteractionTypes::Pickup);
-	InteractionComponent->InteractionTypes.Add(EInteractionTypes::Equip);
-	InteractionComponent->InteractionTypes.Add(EInteractionTypes::Examine);
-	InteractionComponent->InteractionTypes.Add(EInteractionTypes::Compare);
+	ItemSlots.Add(EItemSlots::Armor);
+	ItemCategory = EItemCategory::Armor;
+	ItemTextData.ItemDescription = FText::FromString(TEXT("Armor Item"));
+	Colour = EArmorColour::Grey;
 }
 
-void AArmorItem::Use(ASPCharacter* Character)
+void UArmorItem::Use(APlayerCharacter* Character)
 {
-	
+	Super::Use(Character);
 }
